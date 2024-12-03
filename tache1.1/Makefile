@@ -4,8 +4,7 @@ CFLAGS = -Wall -Wextra -Werror
 
 RM = rm -rf
 
-SRCS = 	src/main.c\
-		src/philo.c
+SRCS = 	src/main.c
 
 $(NAME) :
 	gcc $(CFLAGS) $(SRCS) -o $(NAME)
