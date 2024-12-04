@@ -1,31 +1,38 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <semaphore.h>
 #include <stdbool.h>
 #include <stdatomic.h>
 
 #define LOCKED 1
 #define UNLOCKED 0
-volatile bool *lock = 0;
+
+volatile bool locker = UNLOCKED;
+
 int nThread = 0;
 
 bool test_and_set(volatile bool *ptr, int val)
 {
-    __asm__ __volatile__ ( "xchg %0,%1" : "+r"(val), "+m"(*ptr) : : "memory" );
+    bool old = *ptr;
+    __asm__ __volatile__ (
+        "lock xchg %0, %1"
+        : "+r" (val), "+m" (*ptr)
+        :
+        : "memory"
+    );
+    return old;
 }
+
 
 void lock()
 {
-    while (test_and_set(lock, 1)) {}
+    while (test_and_set(&locker, LOCKED));
 }
 
 void unlock()
 {
-    test_and_set(lock, 0);
+    test_and_set(&locker, UNLOCKED);
 }
-
-
 
 
 // 2.2 --------------------------------------------
@@ -33,10 +40,10 @@ void unlock()
 void *thread_function(void *arg)
 {
     (void)arg;
-    for (int i = 0; i < 32768 / nThread; i++)
+    for (int j = 0; j < 32768 / nThread; j++)
     {
         lock();
-        for (int i=0; i<10000; i++);
+        for (int i=0; i< 10000; i++);
         unlock();
     }
     return NULL;
@@ -60,14 +67,10 @@ int main(int ac, char **av)
 
     pthread_t thread[nThread];
     for (int i = 0; i < nThread; i++)
-    {
         pthread_create(&thread[i], NULL, thread_function, NULL);
-    }
 
     for (int i = 0; i < nThread; i++)
-    {
         pthread_join(thread[i], NULL);
-    }
 
     return (0);
 }
