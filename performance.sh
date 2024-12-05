@@ -15,7 +15,7 @@ OUTPUT_WRITEREAD="perf_finale_1/perf_writeread.csv"
 
 
 gcc $CFLAGS $SRCS_PHILO -o philo
-#gcc $CFLAGS $SRCS_PRODCONS -o prodcons
+gcc $CFLAGS $SRCS_PRODCONS -o prodcons
 gcc $CFLAGS $SRCS_WRITEREAD -o writeread
 
 
@@ -36,11 +36,11 @@ do
     for i in $(seq 1 5)
     do
         TIME_PHILO=$( { /usr/bin/time -f "%e" ./philo $NTHREADS; } 2>&1 > /dev/null )
-        #TIME_PRODCONS=$( { /usr/bin/time -f "%e" ./prodcons $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
+        TIME_PRODCONS=$( { /usr/bin/time -f "%e" ./prodcons $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         TIME_WRITEREAD=$( { /usr/bin/time -f "%e" ./writeread $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         
         echo "$TIME_PHILO" >> $OUTPUT_PHILO
-        #echo "$TIME_PRODCONS" >> $OUTPUT_PRODCONS
+        echo "$TIME_PRODCONS" >> $OUTPUT_PRODCONS
         echo "$TIME_WRITEREAD" >> $OUTPUT_WRITEREAD
     done
     
@@ -50,6 +50,3 @@ rm ./philo
 rm ./prodcons
 rm ./writeread
 
-
-cat $OUTPUT_PHILO
-cat $OUTPUT_WRITEREAD
