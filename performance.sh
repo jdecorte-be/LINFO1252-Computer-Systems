@@ -20,18 +20,15 @@ gcc $CFLAGS $SRCS_WRITEREAD -o writeread
 
 
 
-echo test > $OUTPUT_PHILO
-echo test > $OUTPUT_PRODCONS
-echo test > $OUTPUT_WRITEREAD
+echo "Threads,Sample,Time" > $OUTPUT_PHILO
+echo "Threads,Sample,Time" > $OUTPUT_PRODCONS
+echo "Threads,Sample,Time" > $OUTPUT_WRITEREAD
 
 
 for NTHREADS in 2 4 8 16 32
 do  
     HALF_NT=$(( NTHREADS / 2))
 
-    echo "number of threads : $NTHREADS" >> $OUTPUT_PHILO
-    echo "number of threads : $NTHREADS" >> $OUTPUT_PRODCONS
-    echo "number of threads : $NTHREADS" >> $OUTPUT_WRITEREAD
 
     for i in $(seq 1 5)
     do
@@ -39,9 +36,9 @@ do
         TIME_PRODCONS=$( { /usr/bin/time -f "%e" ./prodcons $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         TIME_WRITEREAD=$( { /usr/bin/time -f "%e" ./writeread $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         
-        echo "$TIME_PHILO" >> $OUTPUT_PHILO
-        echo "$TIME_PRODCONS" >> $OUTPUT_PRODCONS
-        echo "$TIME_WRITEREAD" >> $OUTPUT_WRITEREAD
+        echo "$NTHREADS,$i,$TIME_PHILO" >> $OUTPUT_PHILO
+        echo "$NTHREADS,$i,$TIME_PRODCONS" >> $OUTPUT_PRODCONS
+        echo "$NTHREADS,$i,$TIME_WRITEREAD" >> $OUTPUT_WRITEREAD
     done
     
 done
