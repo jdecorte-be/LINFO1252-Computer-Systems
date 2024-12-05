@@ -25,7 +25,7 @@ echo test > $OUTPUT_PRODCONS
 echo test > $OUTPUT_WRITEREAD
 
 
-for NTHREADS in 2
+for NTHREADS in 2 4 8 16 32
 do  
     HALF_NT=$(( NTHREADS / 2))
 
