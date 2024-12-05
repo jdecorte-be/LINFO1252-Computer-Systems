@@ -8,9 +8,9 @@ SRCS_WRITEREAD=tache1.3/src/main.c
 
 CFLAGS="-Wall -Wextra -Werror"
 
-OUTPUT_PHILO="perf_finale/perf_philo.csv"
-OUTPUT_PRODCONS="perf_finale/perf_prodcons.csv"
-OUTPUT_WRITEREAD="perf_finale/perf_writeread.csv"
+OUTPUT_PHILO="perf_finale_1/perf_philo.csv"
+OUTPUT_PRODCONS="perf_finale_1/perf_prodcons.csv"
+OUTPUT_WRITEREAD="perf_finale_1/perf_writeread.csv"
 
 
 
