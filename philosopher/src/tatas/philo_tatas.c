@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include "tatas.h"
 
 #define NCYCLE 1000000
 #define LEFT 0
@@ -10,7 +11,7 @@ typedef struct s_philosopher
 {
     int id;
     pthread_t thread_id;
-    pthread_mutex_t fork[2]; // 0 = left, 1 = right
+    volatile int fork[2]; // 0 = left, 1 = right
 } t_philosopher;
 
 void *run_philosopher(void *arg)
@@ -24,19 +25,19 @@ void *run_philosopher(void *arg)
         // avoid dead lock
         if (philo->id % 2 == 0)
         {
-            pthread_mutex_lock(&philo->fork[LEFT]);
-            pthread_mutex_lock(&philo->fork[RIGHT]);
+            lock(&philo->fork[LEFT]);
+            lock(&philo->fork[RIGHT]);
         }
         else
         {
-            pthread_mutex_lock(&philo->fork[RIGHT]);
-            pthread_mutex_lock(&philo->fork[LEFT]);
+            lock(&philo->fork[RIGHT]);
+            lock(&philo->fork[LEFT]);
         }
 
         printf("Philosopher %d is eating\n", philo->id);
 
-        pthread_mutex_unlock(&philo->fork[RIGHT]);
-        pthread_mutex_unlock(&philo->fork[LEFT]);
+        unlock(&philo->fork[RIGHT]);
+        unlock(&philo->fork[LEFT]);
     }
 
     return (NULL);
@@ -64,21 +65,7 @@ int main(int ac, char **av)
         return (1);
     }
 
-    for (int i = 0; i < nPhilo; i++)
-    {
-        if (pthread_mutex_init(&philos[i].fork[LEFT], NULL) != 0)
-        {
-            perror("Error initializing mutex");
-            free(philos);
-            return (EXIT_FAILURE);
-        }
-        if (pthread_mutex_init(&philos[i].fork[RIGHT], NULL) != 0)
-        {
-            perror("Error initializing mutex");
-            free(philos);
-            return (EXIT_FAILURE);
-        }
-    }
+
 
     for (int i = 0; i < nPhilo; i++)
     {
@@ -96,23 +83,6 @@ int main(int ac, char **av)
         if (pthread_join(philos[i].thread_id, NULL))
         {
             perror("Error joining thread");
-            free(philos);
-            return (EXIT_FAILURE);
-        }
-    }
-
-    for (int i = 0; i < nPhilo; i++)
-    {
-        if (pthread_mutex_destroy(&philos[i].fork[LEFT]) != 0)
-        {
-            perror("Error destroying mutex");
-            free(philos);
-            return (EXIT_FAILURE);
-        }
-
-        if (pthread_mutex_destroy(&philos[i].fork[RIGHT]) != 0)
-        {
-            perror("Error destroying mutex");
             free(philos);
             return (EXIT_FAILURE);
         }
