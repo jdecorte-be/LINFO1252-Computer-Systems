@@ -61,7 +61,7 @@ clean:
 	@echo "Object files removed"
 
 fclean: clean
-	@rm -f $(NAME_TAS) $(NAME_TATAS)
+	@rm -f $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@echo "Executables removed"
 
 re: fclean all
