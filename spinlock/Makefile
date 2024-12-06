@@ -1,34 +1,61 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror
+DEBUG_FLAGS = -fsanitize=address -g -pthread
+
+SRC_DIR_TAS = src/tas
+SRC_DIR_TATAS = src/tatas
+INCLUDE_DIR_TAS = include/tas
+INCLUDE_DIR_TATAS = include/tatas
+BUILD_DIR = build
+LIB_DIR = lib
+
 NAME_TAS = tas
 NAME_TATAS = tatas
-NAME = $(NAME_TAS) $(NAME_TATAS)
+LIB_TAS = $(LIB_DIR)/libtas.a
+LIB_TATAS = $(LIB_DIR)/libtatas.a
 
-CFLAGS = -Wall -Wextra -Werror
-DEBUG_FLAGS = -fsanitize=address -g
+SRCS_TAS = $(wildcard $(SRC_DIR_TAS)/*.c)
+SRCS_TATAS = $(wildcard $(SRC_DIR_TATAS)/*.c)
 
-RM = rm -rf
+OBJS_TAS = $(patsubst $(SRC_DIR_TAS)/%.c, $(BUILD_DIR)/tas/%.o, $(SRCS_TAS))
+OBJS_TATAS = $(patsubst $(SRC_DIR_TATAS)/%.c, $(BUILD_DIR)/tatas/%.o, $(SRCS_TATAS))
 
-DIR_TAS = src/tas
-DIR_TATAS = src/tatas
+all: $(LIB_TAS) $(LIB_TATAS) $(NAME_TAS) $(NAME_TATAS)
 
-SRCS_TAS = $(DIR_TAS)/main_test_and_set.c $(DIR_TAS)/test_and_set.c
-SRCS_TATAS = $(DIR_TATAS)/main_test_and_test_and_set.c $(DIR_TATAS)/test_and_test_and_set.c
+$(BUILD_DIR)/tas/%.o: $(SRC_DIR_TAS)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR_TAS) -c $< -o $@
 
-INCLUDE_TAS = -Iinclude/tas
-INCLUDE_TATAS = -Iinclude/tatas
+$(LIB_TAS): $(OBJS_TAS)
+	@mkdir -p $(LIB_DIR)
+	ar rcs $@ $^
 
-$(NAME) :
-	gcc $(CFLAGS) $(SRCS_TAS) $(INCLUDE_TAS) -o $(NAME_TAS)
-	gcc $(CFLAGS) $(SRCS_TATAS) $(INCLUDE_TATAS) -o $(NAME_TATAS)
+$(BUILD_DIR)/tatas/%.o: $(SRC_DIR_TATAS)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR_TATAS) -c $< -o $@
 
-debug :
-	gcc $(DEBUG_FLAGS) $(SRCS_TAS) $(INCLUDE_TAS) -o $(NAME_TAS)
+$(LIB_TATAS): $(OBJS_TATAS)
+	@mkdir -p $(LIB_DIR)
+	ar rcs $@ $^
 
-all : $(NAME)
+$(NAME_TAS): $(LIB_TAS)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR_TAS) -L$(LIB_DIR) -ltas -o $(NAME_TAS)
 
-fclean : clean
-	$(RM) $(NAME)
+$(NAME_TATAS): $(LIB_TATAS)
+	$(CC) $(CFLAGS) -I$(INCLUDE_DIR_TATAS) -L$(LIB_DIR) -ltatas -o $(NAME_TATAS)
 
-clean :
-	$(RM) $(NAME)
+debug: CFLAGS += $(DEBUG_FLAGS)
+debug: re
 
-re : fclean all
+clean:
+	@rm -rf $(BUILD_DIR)
+	@echo "Object files removed"
+
+fclean: clean
+	@rm -f $(LIB_TAS) $(LIB_TATAS) $(NAME_TAS) $(NAME_TATAS)
+	@rm -rf $(LIB_DIR)
+	@echo "Libraries and executables removed"
+
+re: fclean all
+
+.PHONY: all clean fclean re debug

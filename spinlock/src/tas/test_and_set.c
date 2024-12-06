@@ -1,7 +1,5 @@
 #include "tas.h"
 
-volatile int locker = UNLOCKED;
-
 int test_and_set(volatile int *ptr, int val)
 {
 	__asm volatile("lock xchg %0,%1"
@@ -11,12 +9,13 @@ int test_and_set(volatile int *ptr, int val)
     return val;
 }
 
-void lock()
+void lock(volatile int *ptr)
 {
-    while (test_and_set(&locker, LOCKED) == LOCKED);
+	while(test_and_set(ptr, LOCKED));
 }
 
-void unlock()
+void unlock(volatile int *ptr)
 {
-    test_and_set(&locker, UNLOCKED);
+    test_and_set(ptr, UNLOCKED);
 }
+

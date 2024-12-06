@@ -10,7 +10,13 @@
 #include <stdbool.h>
 #include <stdatomic.h>
 
-void lock();
-void unlock();
+typedef struct s_sem_tatas
+{
+	volatile int value;
+	int *mutex;
+} t_sem_tatas;
+
+void lock(volatile int *ptr);
+void unlock(volatile int *ptr);
 
 #endif
