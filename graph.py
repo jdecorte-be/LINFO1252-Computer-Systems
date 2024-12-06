@@ -45,15 +45,15 @@ for problem in ["philo", "prodcons", "writeread"]:
 
     title = ""
     if problem == 'philo':
-        title = 'philosophes'
+        title = '\ndes philosophes'
     elif problem == 'prodcons':
-        title = 'producteurs et consommateurs'
+        title = 'des producteurs \net des consommateurs'
     elif problem == 'writeread':
-        title = 'écrivains et lecteurs'
+        title = 'des écrivains \net des lecteurs'
     
     plt.xlabel("Nombre de threads")
     plt.ylabel("Temps d'exécution (seconde)")
-    plt.title(f"Analyse de la performance du problème \n {title} avec moyenne et écart-type")
+    plt.title(f"Analyse de la performance du problème {title} avec la moyenne et l'écart-type")
     plt.legend(handles=legend_elements)
     plt.grid(True)
     plt.xticks(nthreads, labels=nthreads)
