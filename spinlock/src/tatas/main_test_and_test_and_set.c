@@ -1,17 +1,14 @@
 #include "tatas.h"
 
-
 // 2.2 --------------------------------------------
-
-int nThread = 0;
 
 void *thread_function(void *arg)
 {
-    (void)arg;
-    for (int j = 0; j < 32768 / nThread; j++)
+    int n = *((int *)arg);
+    for (int j = 0; j < 32768 / n; j++)
     {
         lock();
-        for (int i=0; i< 10000; i++);
+        for (int i = 0; i < 10000; i++);
         unlock();
     }
     return NULL;
@@ -19,15 +16,14 @@ void *thread_function(void *arg)
 
 int main(int ac, char **av)
 {
-
-    if(ac != 2)
+    if (ac != 2)
     {
         printf("Usage: %s <number_of_threads>\n\n", av[0]);
         return (1);
     }
 
-    nThread = atoi(av[1]);
-    if(nThread < 1)
+    int nThread = atoi(av[1]);
+    if (nThread < 1)
     {
         printf("Error: number of threads must be at least 1\n");
         return (1);
@@ -35,7 +31,7 @@ int main(int ac, char **av)
 
     pthread_t thread[nThread];
     for (int i = 0; i < nThread; i++)
-        pthread_create(&thread[i], NULL, thread_function, NULL);
+        pthread_create(&thread[i], NULL, thread_function, &nThread);
 
     for (int i = 0; i < nThread; i++)
         pthread_join(thread[i], NULL);

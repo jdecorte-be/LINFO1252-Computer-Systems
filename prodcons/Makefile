@@ -1,10 +1,10 @@
-NAME = philo
+NAME = prodcons
 
 CFLAGS = -Wall -Wextra -Werror
 
 RM = rm -rf
 
-SRCS = 	src/main.c
+SRCS = 	src/prodcons.c
 
 $(NAME) :
 	gcc $(CFLAGS) $(SRCS) -o $(NAME)
