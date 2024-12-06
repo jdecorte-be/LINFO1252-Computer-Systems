@@ -3,7 +3,7 @@
 
 
 
-void sem_init_tas(t_sem_tatas *sem, int value)
+void sem_init_tatas(t_sem_tatas *sem, int value)
 {
 	sem->value = value;
 	sem->mutex = malloc(sizeof(int));
@@ -15,12 +15,12 @@ void sem_init_tas(t_sem_tatas *sem, int value)
 	*sem->mutex = UNLOCKED;
 }
 
-void sem_destroy_tas(t_sem_tatas *sem)
+void sem_destroy_tatas(t_sem_tatas *sem)
 {
 	free(sem->mutex);
 }
 
-int sem_wait_tas(t_sem_tatas *sem)
+int sem_wait_tatas(t_sem_tatas *sem)
 {
 	lock(sem->mutex);
 	int tmp = sem->value;
@@ -37,7 +37,7 @@ int sem_wait_tas(t_sem_tatas *sem)
 	return 0;
 }
 
-void sem_post_tas(t_sem_tatas *sem)
+void sem_post_tatas(t_sem_tatas *sem)
 {
 	lock(sem->mutex);
 	sem->value++;

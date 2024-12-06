@@ -19,4 +19,10 @@ typedef struct s_sem_tatas
 void lock(volatile int *ptr);
 void unlock(volatile int *ptr);
 
+void sem_init_tatas(t_sem_tatas *sem, int value);
+void sem_destroy_tatas(t_sem_tatas *sem);
+int sem_wait_tatas(t_sem_tatas *sem);
+void sem_post_tatas(t_sem_tatas *sem);
+
+
 #endif
