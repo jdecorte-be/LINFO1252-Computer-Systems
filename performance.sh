@@ -12,22 +12,25 @@ OUTPUT_PHILO="perf_finale_1/perf_philo.csv"
 OUTPUT_PRODCONS="perf_finale_1/perf_prodcons.csv"
 OUTPUT_WRITEREAD="perf_finale_1/perf_writeread.csv"
 
-
+echo "performance tourne.."
 
 gcc $CFLAGS $SRCS_PHILO -o philo
-gcc $CFLAGS $SRCS_PRODCONS -o prodcons
-gcc $CFLAGS $SRCS_WRITEREAD -o writeread
+#gcc $CFLAGS $SRCS_PRODCONS -o prodcons
+#gcc $CFLAGS $SRCS_WRITEREAD -o writeread
 
 
 
-echo "Threads,Sample,Time" > $OUTPUT_PHILO
-echo "Threads,Sample,Time" > $OUTPUT_PRODCONS
-echo "Threads,Sample,Time" > $OUTPUT_WRITEREAD
+echo "Threads,Run1,Run2,Run3,Run4,Run5" > $OUTPUT_PHILO
+echo "Threads,Run1,Run2,Run3,Run4,Run5" > $OUTPUT_PRODCONS
+echo "Threads,Run1,Run2,Run3,Run4,Run5" > $OUTPUT_WRITEREAD
 
 
 for NTHREADS in 2 4 8 16 32
 do  
     HALF_NT=$(( NTHREADS / 2))
+    echo -n "$NTHREADS" >> $OUTPUT_PHILO
+    echo -n "$NTHREADS" >> $OUTPUT_PRODCONS
+    echo -n "$NTHREADS" >> $OUTPUT_WRITEREAD
 
 
     for i in $(seq 1 5)
@@ -36,14 +39,20 @@ do
         TIME_PRODCONS=$( { /usr/bin/time -f "%e" ./prodcons $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         TIME_WRITEREAD=$( { /usr/bin/time -f "%e" ./writeread $HALF_NT $HALF_NT; } 2>&1 > /dev/null )
         
-        echo "$NTHREADS,$i,$TIME_PHILO" >> $OUTPUT_PHILO
-        echo "$NTHREADS,$i,$TIME_PRODCONS" >> $OUTPUT_PRODCONS
-        echo "$NTHREADS,$i,$TIME_WRITEREAD" >> $OUTPUT_WRITEREAD
+        echo -n ",$TIME_PHILO" >> $OUTPUT_PHILO
+        echo -n ",$TIME_PRODCONS" >> $OUTPUT_PRODCONS
+        echo -n ",$TIME_WRITEREAD" >> $OUTPUT_WRITEREAD
     done
+    echo "" >> $OUTPUT_PHILO
+    echo "" >> $OUTPUT_PRODCONS
+    echo "" >> $OUTPUT_WRITEREAD
+
     
 done
 
 rm ./philo
 rm ./prodcons
 rm ./writeread
+
+echo "performance est fini !"
 
