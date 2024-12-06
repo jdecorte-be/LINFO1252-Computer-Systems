@@ -1,23 +1,19 @@
 #include "tas.h"
 
-volatile bool locker = UNLOCKED;
+volatile int locker = UNLOCKED;
 
-bool test_and_set(volatile bool *ptr, int val)
+int test_and_set(volatile int *ptr, int val)
 {
-    bool old = *ptr;
-    __asm__ __volatile__ (
-        "lock xchg %0, %1"
-        : "+r" (val), "+m" (*ptr)
-        :
-        : "memory"
-    );
-    return old;
+	__asm volatile("lock xchg %0,%1"
+		     : "=r" (val), "+m" (*ptr)
+		     : "0" (val)
+		     : "memory");
+    return val;
 }
-
 
 void lock()
 {
-    while (test_and_set(&locker, LOCKED));
+    while (test_and_set(&locker, LOCKED) == LOCKED);
 }
 
 void unlock()
