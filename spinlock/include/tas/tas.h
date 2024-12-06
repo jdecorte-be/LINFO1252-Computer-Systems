@@ -10,8 +10,18 @@
 #include <stdbool.h>
 #include <stdatomic.h>
 
-void lock();
-void unlock();
-bool test_and_set(volatile bool *ptr, int val);
+typedef struct s_sem_tas
+{
+	volatile int value;
+	int *mutex;
+} t_sem_tas;
+
+void lock(volatile int *ptr);
+void unlock(volatile int *ptr);
+
+void sem_init_tas(t_sem_tas *sem, int value);
+void sem_destroy_tas(t_sem_tas *sem);
+int sem_wait_tas(t_sem_tas *sem);
+void sem_post_tas(t_sem_tas *sem);
 
 #endif

@@ -1,15 +1,16 @@
 #include "tatas.h"
-
 // 2.2 --------------------------------------------
+
+volatile int mutex = UNLOCKED;
 
 void *thread_function(void *arg)
 {
     int n = *((int *)arg);
     for (int j = 0; j < 32768 / n; j++)
     {
-        lock();
+        lock(&mutex);
         for (int i = 0; i < 10000; i++);
-        unlock();
+        unlock(&mutex);
     }
     return NULL;
 }

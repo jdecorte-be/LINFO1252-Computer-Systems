@@ -1,8 +1,6 @@
 #include "tatas.h"
 
-volatile bool locker = UNLOCKED;
-
-bool test_and_set(volatile bool *ptr, int val)
+int test_and_set(volatile int *ptr, int val)
 {
 	__asm volatile("lock xchg %0,%1"
 		     : "=r" (val), "+m" (*ptr)
@@ -11,16 +9,15 @@ bool test_and_set(volatile bool *ptr, int val)
     return val;
 }
 
-void lock()
+void lock(volatile int *ptr)
 {
     do
     {
-        while (locker == LOCKED)
-            ;
-    } while (test_and_set(&locker, LOCKED));
+        while (*ptr == LOCKED);
+    } while (test_and_set(ptr, LOCKED));
 }
 
-void unlock()
+void unlock(volatile int *ptr)
 {
-    test_and_set(&locker, UNLOCKED);
+    test_and_set(ptr, UNLOCKED);
 }
