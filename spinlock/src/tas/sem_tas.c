@@ -1,11 +1,17 @@
 #include "tas.h"
 // 2.4 --------------------------------------------
 
-void sem_init_tas(t_sem_tas *sem, int value)
+int sem_init_tas(t_sem_tas *sem, int value)
 {
 	sem->value = value;
 	sem->mutex = malloc(sizeof(int));
+	if (sem->mutex == NULL)
+	{
+		perror("malloc failed");
+		return (EXIT_FAILURE);
+	}
 	*sem->mutex = UNLOCKED;
+	return (EXIT_SUCCESS);
 }
 
 void sem_destroy_tas(t_sem_tas *sem)
@@ -27,7 +33,7 @@ int sem_wait_tas(t_sem_tas *sem)
 	lock(sem->mutex);
 	sem->value--;
 	unlock(sem->mutex);
-	return 0;
+	return (EXIT_SUCCESS);
 }
 
 void sem_post_tas(t_sem_tas *sem)

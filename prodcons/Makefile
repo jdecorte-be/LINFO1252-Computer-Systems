@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-DEBUG_FLAGS = -fsanitize=address -g -pthread
+DEBUG_FLAGS = -fsanitize=thread -g3 -pthread
 
 SRC_DIR_DEF = src
 SRC_DIR_TAS = src/tas
@@ -65,5 +65,36 @@ fclean: clean
 	@echo "Executables removed"
 
 re: fclean all
+
+# Run performance tests
+perf: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
+	@echo "Running performance tests..."
+	../script/performance.sh ../prodcons/$(NAME_TAS) ${NAME_TAS}
+	../script/performance.sh ../prodcons/$(NAME_TATAS) ${NAME_TATAS}
+	../script/performance.sh ../prodcons/$(NAME_DEF) ${NAME_DEF}
+
+plot: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
+	@echo "Plotting..."
+	python3 ../script/graph.py ../prodcons/csv/$(NAME_DEF).csv
+	python3 ../script/graph.py ../prodcons/csv/$(NAME_TAS).csv
+	python3 ../script/graph.py ../prodcons/csv/$(NAME_TATAS).csv
+
+# Valrgind
+valgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
+	@echo "Running valgrind tests..."
+	@mkdir -p debug
+	# write valgrind output in debug/valgrind.log
+	valgrind --tool=memcheck --log-file=debug/$(NAME_DEF)_valgrind.log ../prodcons/$(NAME_DEF) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TAS)_valgrind.log ../prodcons/$(NAME_TAS) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TATAS)_valgrind.log ../prodcons/$(NAME_TATAS) 2 2
+
+# Helgrind
+helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
+	@echo "Running helgrind tests..."
+	@mkdir -p debug
+	# write helgrind output in debug/helgrind.log
+	valgrind --tool=helgrind --log-file=debug/$(NAME_DEF)_helgrind.log ../prodcons/$(NAME_DEF) 2 2
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../prodcons/$(NAME_TAS) 2 2
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../prodcons/$(NAME_TATAS) 2 2
 
 .PHONY: all clean fclean re debug

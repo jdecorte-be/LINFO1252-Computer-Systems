@@ -3,16 +3,17 @@
 
 
 
-void sem_init_tatas(t_sem_tatas *sem, int value)
+int sem_init_tatas(t_sem_tatas *sem, int value)
 {
 	sem->value = value;
 	sem->mutex = malloc(sizeof(int));
     if (sem->mutex == NULL)
     {
         perror("malloc failed");
-        exit(1);
+        return (EXIT_FAILURE);
     }
 	*sem->mutex = UNLOCKED;
+	return (EXIT_SUCCESS);
 }
 
 void sem_destroy_tatas(t_sem_tatas *sem)
@@ -34,7 +35,7 @@ int sem_wait_tatas(t_sem_tatas *sem)
 	lock(sem->mutex);
 	sem->value--;
 	unlock(sem->mutex);
-	return 0;
+	return (EXIT_SUCCESS);
 }
 
 void sem_post_tatas(t_sem_tatas *sem)

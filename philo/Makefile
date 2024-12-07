@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-DEBUG_FLAGS = -fsanitize=thread -g3 -pthread
+DEBUG_FLAGS = -fsanitize=address -g -pthread
 
 SRC_DIR_DEF = src
 SRC_DIR_TAS = src/tas
@@ -12,9 +12,9 @@ INCLUDE_DIR_TATAS = ../spinlock/include/tatas
 LIB_DIR = ../spinlock/lib
 BUILD_DIR = build
 
-NAME_DEF = writeread
-NAME_TAS = writeread_tas
-NAME_TATAS = writeread_tatas
+NAME_DEF = philo
+NAME_TAS = philo_tas
+NAME_TATAS = philo_tatas
 
 SRCS_DEF = $(wildcard $(SRC_DIR_DEF)/*.c)
 SRCS_TAS = $(wildcard $(SRC_DIR_TAS)/*.c)
@@ -26,7 +26,7 @@ OBJS_TATAS = $(patsubst $(SRC_DIR_TATAS)/%.c, $(BUILD_DIR)/tatas/%.o, $(SRCS_TAT
 
 all: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 
-# Normal 
+# Normal Philo 
 $(BUILD_DIR)/%.o: $(SRC_DIR_DEF)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -69,32 +69,32 @@ re: fclean all
 # Run performance tests
 perf: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@echo "Running performance tests..."
-	../script/performance.sh ../writeread/$(NAME_TAS) ${NAME_TAS}
-	../script/performance.sh ../writeread/$(NAME_TATAS) ${NAME_TATAS}
-	../script/performance.sh ../writeread/$(NAME_DEF) ${NAME_DEF}
+	../script/performance.sh ../philo/$(NAME_TAS) ${NAME_TAS}
+	../script/performance.sh ../philo/$(NAME_TATAS) ${NAME_TATAS}
+	../script/performance.sh ../philo/$(NAME_DEF) ${NAME_DEF}
 
 plot: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@echo "Plotting..."
-	python3 ../script/graph.py ../writeread/csv/$(NAME_DEF).csv
-	python3 ../script/graph.py ../writeread/csv/$(NAME_TAS).csv
-	python3 ../script/graph.py ../writeread/csv/$(NAME_TATAS).csv
+	python3 ../script/graph.py ../philo/csv/$(NAME_DEF).csv
+	python3 ../script/graph.py ../philo/csv/$(NAME_TAS).csv
+	python3 ../script/graph.py ../philo/csv/$(NAME_TATAS).csv
 
 # Valgrind
 valgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@echo "Running valgrind tests..."
 	@mkdir -p debug
 	# write valgrind output in debug/valgrind.log
-	valgrind --tool=memcheck --log-file=debug/$(NAME_DEF)_valgrind.log ../writeread/$(NAME_DEF) 2 2
-	valgrind --tool=memcheck --log-file=debug/$(NAME_TAS)_valgrind.log ../writeread/$(NAME_TAS) 2 2
-	valgrind --tool=memcheck --log-file=debug/$(NAME_TATAS)_valgrind.log ../writeread/$(NAME_TATAS) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_DEF)_valgrind.log ../philo/$(NAME_DEF) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TAS)_valgrind.log ../philo/$(NAME_TAS) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TATAS)_valgrind.log ../philo/$(NAME_TATAS) 2 2
 
 # Helgrind
 helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@echo "Running helgrind tests..."
 	@mkdir -p debug
 	# write helgrind output in debug/helgrind.log
-	valgrind --tool=helgrind --log-file=debug/$(NAME_DEF)_helgrind.log ../writeread/$(NAME_DEF) 2 2
-	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../writeread/$(NAME_TAS) 2 2
-	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../writeread/$(NAME_TATAS) 2 2
-
+	valgrind --tool=helgrind --log-file=debug/$(NAME_DEF)_helgrind.log ../philo/$(NAME_DEF) 2 2
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../philo/$(NAME_TAS) 2 2
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../philo/$(NAME_TATAS) 2 2
+	
 .PHONY: all clean fclean re debug

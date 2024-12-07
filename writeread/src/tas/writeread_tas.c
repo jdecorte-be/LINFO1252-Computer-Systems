@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <semaphore.h>
+
+#include "tas.h"
 
 #define NREAD 2540
 #define NWRITE 640
 
-pthread_mutex_t mut_read;
-sem_t wrt;
+volatile int mut_read = UNLOCKED;
+t_sem_tas wrt;
 
 int current_readers = 0;
 
@@ -18,11 +19,11 @@ void *writer()
 {
     while (42)
     {
-        sem_wait(&wrt);
+        sem_wait_tas(&wrt);
 
         if (counter_writers >= NWRITE)
         {
-            sem_post(&wrt);
+            sem_post_tas(&wrt);
             break;
         }
         counter_writers++;
@@ -31,7 +32,7 @@ void *writer()
 
         for (int i = 0; i < 10000; i++);
 
-        sem_post(&wrt);
+        sem_post_tas(&wrt);
     }
     return NULL;
 }
@@ -40,30 +41,30 @@ void *reader()
 {
     while (42)
     {
-        pthread_mutex_lock(&mut_read);
+        lock(&mut_read);
 
         ///// SECTION CRITIQUE
         if (counter_readers >= NREAD)
         {
-            pthread_mutex_unlock(&mut_read);
+            unlock(&mut_read);
             break;
         }
         current_readers++;
         counter_readers++;
         if (current_readers == 1)
-            sem_wait(&wrt);
-        pthread_mutex_unlock(&mut_read);
+            sem_wait_tas(&wrt);
+        unlock(&mut_read);
 
         for (int i = 0; i < 10000; i++);
 
-        pthread_mutex_lock(&mut_read);
+        lock(&mut_read);
         current_readers--;
 
         if (current_readers == 0)
-            sem_post(&wrt);
+            sem_post_tas(&wrt);
         /////////
 
-        pthread_mutex_unlock(&mut_read);
+        unlock(&mut_read);
     }
     return NULL;
 }
@@ -84,15 +85,9 @@ int main(int ac, char **av)
         return (EXIT_FAILURE);
     }
 
-    if (sem_init(&wrt, 0, 1) != 0)
+    if (sem_init_tas(&wrt, 1) != 0)
     {
-        perror("sem_init");
-        return (EXIT_FAILURE);
-    }
-
-    if (pthread_mutex_init(&mut_read, NULL) != 0)
-    {
-        perror("pthread_mutex_init");
+        perror("sem_init_tas");
         return (EXIT_FAILURE);
     }
 
@@ -135,16 +130,7 @@ int main(int ac, char **av)
     }
 
     // Clean up
-    if (sem_destroy(&wrt) != 0)
-    {
-        perror("sem_destroy");
-        return (EXIT_FAILURE);
-    }
-    if (pthread_mutex_destroy(&mut_read) != 0)
-    {
-        perror("pthread_mutex_destroy");
-        return (EXIT_FAILURE);
-    }
+    sem_destroy_tas(&wrt);
 
     return 0;
 }

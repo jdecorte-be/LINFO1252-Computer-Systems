@@ -1,8 +1,10 @@
-PROJECTS = philosopher prodcons spinlock
+PROJECTS = spinlock philo prodcons writeread 
+
+SCRIPTS_DIR = script
 
 all: $(PROJECTS)
 
-$(PROJECTS):
+$(PROJECTS): perf plot
 	@echo "Building $@..."
 	@$(MAKE) -C $@
 
@@ -19,5 +21,20 @@ fclean:
 	done
 
 re: fclean all
+
+perf: $(PROJECTS)
+	@echo "Running performance tests..."
+
+	@for project in $(PROJECTS); do \
+		echo "Running performance tests for $$project..."; \
+		$(MAKE) -C $$project perf; \
+	done
+
+plot: $(PROJECTS)
+	@echo "Plotting..."
+	@for project in $(PROJECTS); do \
+		echo "Plotting $$project..."; \
+		$(MAKE) -C $$project plot; \
+	done
 
 .PHONY: all clean fclean re $(PROJECTS)

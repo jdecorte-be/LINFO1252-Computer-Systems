@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <pthread.h>
-#include <stdlib.h>
 #include "tas.h"
 
 #define CAPACITY 8
@@ -15,43 +13,66 @@ volatile int mutex_buffer = UNLOCKED;
 int in = 0;
 int out = 0;
 
-void *consumer(void *arg)
+int count_cons = 0;
+int count_prod = 0;
+
+void *consumer()
 {
-    int consumer_id = *((int *)arg);
-    for (int i = 0; i < NITER; i++)
+    while (42)
     {
         sem_wait_tas(&sem_full);
         lock(&mutex_buffer);
-        
+
+        //// SECTION CRITIQUE
+        if (count_cons >= NITER)
+        {
+            unlock(&mutex_buffer);
+            sem_post_tas(&sem_empty);
+            break;
+        }
+
         int y = buffer[out];
         out = (out + 1) % CAPACITY;
+        count_cons++;
 
-        printf("Consumer %d: %d\n", consumer_id, y);
+        printf("Consume %d\n", y);
+        ////////////
 
         unlock(&mutex_buffer);
-        for (int j = 0; j < 10000; j++);
         sem_post_tas(&sem_empty);
-
+        for (int j = 0; j < 10000; j++)
+            ;
     }
     return (NULL);
 }
 
 void *producer(void *arg)
 {
-    int id = *((int *)arg);
-    for (int i = 0; i < NITER; i++)
+    long id = (long)arg;
+    while (42)
     {
         sem_wait_tas(&sem_empty);
         lock(&mutex_buffer);
 
+        //// SECTION CRITIQUE
+        if (count_prod >= NITER)
+        {
+            unlock(&mutex_buffer);
+            sem_post_tas(&sem_full);
+            break;
+        }
+
         buffer[in] = id;
         in = (in + 1) % CAPACITY;
+        count_prod++;
 
-        printf("Produce %d\n", id);
+        printf("Produce %d\n", (int)id);
+        ////////////
 
         unlock(&mutex_buffer);
-        for (int j = 0; j < 10000; j++);
         sem_post_tas(&sem_full);
+        for (int j = 0; j < 10000; j++)
+            ;
     }
     return (NULL);
 }
@@ -61,7 +82,7 @@ int main(int ac, char **av)
     if (ac != 3)
     {
         printf("Usage: %s <number_of_cons_threads> <number_of_prod_threads>\n\n", av[0]);
-        return (1);
+        return (EXIT_FAILURE);
     }
 
     int nCons = atoi(av[1]);
@@ -70,50 +91,66 @@ int main(int ac, char **av)
     if (nCons < 1 || nProd < 1)
     {
         printf("Error: number of consumers and producers must be at least 1\n");
-        return (1);
+        return (EXIT_FAILURE);
     }
 
-    // ---
-    sem_init_tas(&sem_full, 0);
-    sem_init_tas(&sem_empty, CAPACITY);
+    // Init semaphores
+    if (sem_init_tas(&sem_full, 0) != 0)
+    {
+        perror("sem_init");
+        return (EXIT_FAILURE);
+    }
+
+    if (sem_init_tas(&sem_empty, CAPACITY) != 0)
+    {
+        perror("sem_init");
+        return (EXIT_FAILURE);
+    }
 
     pthread_t cons[nCons];
-    for (int i = 0; i < nCons; i++)
-    {
-        if(pthread_create(&cons[i], NULL, consumer, &i) != 0)
-        {
-            perror("pthread_create");
-            exit(EXIT_FAILURE);
-        }
-    }
-
     pthread_t prod[nProd];
-    for (int i = 0; i < nProd; i++)
-    {
-        if(pthread_create(&prod[i], NULL, producer, &i) != 0)
-        {
-            perror("pthread_create");
-            exit(EXIT_FAILURE);
-        }
-    }
 
+    // Create threads
     for (int i = 0; i < nCons; i++)
     {
-        if(pthread_join(cons[i], NULL) != 0)
+        if (pthread_create(&cons[i], NULL, consumer, NULL) != 0)
+        {
+            perror("pthread_create");
+            return (EXIT_FAILURE);
+        }
+    }
+
+    for (long i = 0; i < nProd; i++)
+    {
+        if (pthread_create(&prod[i], NULL, producer, (void *)i) != 0)
+        {
+            perror("pthread_create");
+            return (EXIT_FAILURE);
+        }
+    }
+
+    // Join all threads
+    for (int i = 0; i < nCons; i++)
+    {
+        if (pthread_join(cons[i], NULL) != 0)
         {
             perror("pthread_join");
-            exit(EXIT_FAILURE);
+            return (EXIT_FAILURE);
         }
     }
 
     for (int i = 0; i < nProd; i++)
     {
-        if(pthread_join(prod[i], NULL) != 0)
+        if (pthread_join(prod[i], NULL) != 0)
         {
             perror("pthread_join");
-            exit(EXIT_FAILURE);
+            return (EXIT_FAILURE);
         }
     }
+
+    // Cleanup
+    sem_destroy_tas(&sem_full);
+    sem_destroy_tas(&sem_empty);
 
     return (0);
 }
