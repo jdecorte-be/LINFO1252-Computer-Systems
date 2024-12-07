@@ -86,4 +86,4 @@ helgrind: $(NAME_TAS) $(NAME_TATAS)
 	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../spinlock/$(NAME_TATAS) 2 2
 
 
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re debug perf plot valgrind helgrind

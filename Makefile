@@ -56,4 +56,4 @@ helgrind: $(PROJECTS)
 		$(MAKE) -C $$project helgrind; \
 	done
 
-.PHONY: all clean fclean re $(PROJECTS) perf plot
+.PHONY: all clean fclean re $(PROJECTS) perf plot valgrind helgrind

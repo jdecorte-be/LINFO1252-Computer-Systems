@@ -93,4 +93,4 @@ helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	# write helgrind output in debug/helgrind.log
 	valgrind --tool=helgrind --log-file=debug/$(NAME_DEF)_helgrind.log ../prodcons/$(NAME_DEF) 2 2
 
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re debug perf plot valgrind helgrind

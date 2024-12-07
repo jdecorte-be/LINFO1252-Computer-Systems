@@ -97,4 +97,4 @@ helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../writeread/$(NAME_TAS) 2 2
 	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../writeread/$(NAME_TATAS) 2 2
 
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re debug perf plot valgrind helgrind
