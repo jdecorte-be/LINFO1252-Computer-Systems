@@ -48,7 +48,7 @@ debug: CFLAGS += $(DEBUG_FLAGS)
 debug: re
 
 clean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) debug csv graph
 	@echo "Object files removed"
 
 fclean: clean
@@ -57,5 +57,33 @@ fclean: clean
 	@echo "Libraries and executables removed"
 
 re: fclean all
+
+# Run performance tests
+perf: $(NAME_TAS) $(NAME_TATAS)
+	@echo "Running performance tests..."
+	../script/performance.sh ../spinlock/$(NAME_TAS) ${NAME_TAS}
+	../script/performance.sh ../spinlock/$(NAME_TATAS) ${NAME_TATAS}
+
+plot: $(NAME_TAS) $(NAME_TATAS)
+	@echo "Plotting..."
+	python3 ../script/graph.py ../spinlock/csv/$(NAME_TAS).csv
+	python3 ../script/graph.py ../spinlock/csv/$(NAME_TATAS).csv
+
+# Valgrind
+valgrind: $(NAME_TAS) $(NAME_TATAS)
+	@echo "Running valgrind tests..."
+	@mkdir -p debug
+	# write valgrind output in debug/valgrind.log
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TAS)_valgrind.log ../spinlock/$(NAME_TAS) 2 2
+	valgrind --tool=memcheck --log-file=debug/$(NAME_TATAS)_valgrind.log ../spinlock/$(NAME_TATAS) 2 2
+
+# Helgrind
+helgrind: $(NAME_TAS) $(NAME_TATAS)
+	@echo "Running helgrind tests..."
+	@mkdir -p debug
+	# write helgrind output in debug/helgrind.log
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../spinlock/$(NAME_TAS) 2 2
+	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../spinlock/$(NAME_TATAS) 2 2
+
 
 .PHONY: all clean fclean re debug

@@ -61,5 +61,4 @@ echo "Performance testing started for $BINARY..."
 
 run_performance_test "$BINARY" "$OUTPUT_FILE"
 
-echo "Performance testing completed!"
-echo "Results saved to $OUTPUT_FILE"
+echo "✅ Performance testing completed for $BINARY"

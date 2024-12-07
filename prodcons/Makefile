@@ -57,7 +57,7 @@ debug: CFLAGS += $(DEBUG_FLAGS)
 debug: re
 
 clean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) debug csv graph
 	@echo "Object files removed"
 
 fclean: clean
@@ -85,8 +85,6 @@ valgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@mkdir -p debug
 	# write valgrind output in debug/valgrind.log
 	valgrind --tool=memcheck --log-file=debug/$(NAME_DEF)_valgrind.log ../prodcons/$(NAME_DEF) 2 2
-	valgrind --tool=memcheck --log-file=debug/$(NAME_TAS)_valgrind.log ../prodcons/$(NAME_TAS) 2 2
-	valgrind --tool=memcheck --log-file=debug/$(NAME_TATAS)_valgrind.log ../prodcons/$(NAME_TATAS) 2 2
 
 # Helgrind
 helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
@@ -94,7 +92,5 @@ helgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	@mkdir -p debug
 	# write helgrind output in debug/helgrind.log
 	valgrind --tool=helgrind --log-file=debug/$(NAME_DEF)_helgrind.log ../prodcons/$(NAME_DEF) 2 2
-	valgrind --tool=helgrind --log-file=debug/$(NAME_TAS)_helgrind.log ../prodcons/$(NAME_TAS) 2 2
-	valgrind --tool=helgrind --log-file=debug/$(NAME_TATAS)_helgrind.log ../prodcons/$(NAME_TATAS) 2 2
 
 .PHONY: all clean fclean re debug

@@ -57,7 +57,7 @@ debug: CFLAGS += $(DEBUG_FLAGS)
 debug: re
 
 clean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) debug csv graph
 	@echo "Object files removed"
 
 fclean: clean

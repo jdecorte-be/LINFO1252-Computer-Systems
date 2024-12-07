@@ -20,8 +20,6 @@ void *run_philosopher(void *arg)
 
     for (size_t i = 0; i < NCYCLE; i++)
     {
-        printf("Philosopher %d is thinking\n", philo->id);
-
         // avoid dead lock
         if (philo->id % 2 == 0)
         {
@@ -33,8 +31,6 @@ void *run_philosopher(void *arg)
             lock(&philo->fork[RIGHT]);
             lock(&philo->fork[LEFT]);
         }
-
-        printf("Philosopher %d is eating\n", philo->id);
 
         unlock(&philo->fork[RIGHT]);
         unlock(&philo->fork[LEFT]);

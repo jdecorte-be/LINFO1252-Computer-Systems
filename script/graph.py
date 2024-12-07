@@ -49,33 +49,24 @@ def process_performance_data(csv_file, output_dir='graph', problem_name=None):
         Line2D([0], [0], color='red', markersize=5, label='Écart-type')
     ]
     
-    title_map = {
-        'philo': 'des philosophes',
-        'prodcons': 'des producteurs \net des consommateurs',
-        'writeread': 'des écrivains \net des lecteurs'
-    }
-    title = title_map.get(problem_name, problem_name)
-    
     plt.xlabel("Nombre de threads")
     plt.ylabel("Temps d'exécution (seconde)")
-    plt.title(f"Analyse de la performance du problème {title} avec la moyenne et l'écart-type")
+    plt.title(f"Analyse {problem_name}")
     plt.legend(handles=legend_elements)
     plt.grid(True)
     plt.xticks(nthreads, labels=nthreads)
     
     output_file = os.path.join(output_dir, f'graphe_{problem_name}.png')
     plt.savefig(output_file)
-    print(f"Graph saved to {output_file}")
+    print(f" ✅ Graph for {csv_file} saved to {output_file}")
     
     plt.close()
 
 def main():
     parser = argparse.ArgumentParser(description='Process performance data and create graphs')
-    parser.add_argument('csv_file', type=str, help='Path to the input CSV file')
-    parser.add_argument('--output-dir', type=str, default='graph', 
-                        help='Directory to save output graphs (default: grah)')
-    parser.add_argument('--problem-name', type=str, 
-                        help='Name of the problem (optional, will be derived from filename if not provided)')
+    parser.add_argument('csv_file', type=str)
+    parser.add_argument('--output-dir', type=str, default='graph')
+    parser.add_argument('--problem-name', type=str)
     
     args = parser.parse_args()
     
