@@ -69,6 +69,8 @@ plot: $(NAME_TAS) $(NAME_TATAS)
 	python3 ../script/graph.py ../spinlock/csv/$(NAME_TAS).csv
 	python3 ../script/graph.py ../spinlock/csv/$(NAME_TATAS).csv
 
+	python3 ../script/combine.py ../spinlock/csv --combined-name spinlock --output-dir graph
+
 # Valgrind
 valgrind: $(NAME_TAS) $(NAME_TATAS)
 	@echo "Running valgrind tests..."
