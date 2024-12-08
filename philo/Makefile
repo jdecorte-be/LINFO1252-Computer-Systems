@@ -79,7 +79,7 @@ plot: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
 	python3 ../script/graph.py ../philo/csv/$(NAME_TAS).csv
 	python3 ../script/graph.py ../philo/csv/$(NAME_TATAS).csv
 
-	python3 ../script/combine.py ../philo/csv --combined-name philo --output-dir graph
+	python3 ../script/combine.py ../$(NAME_DEF)/csv --combined-name $(NAME_DEF) --output-dir graph
 
 # Valgrind
 valgrind: $(NAME_TAS) $(NAME_TATAS) $(NAME_DEF)
